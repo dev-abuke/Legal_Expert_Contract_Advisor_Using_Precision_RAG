@@ -1,7 +1,7 @@
 # Contract Q&A RAG System
 
 ## Overview
-This project implements a Retrieval-Augmented Generation (RAG) system for Contract Q&A, developed as part of the 10 Academy Week 11 challenge. The system aims to provide accurate and context-aware answers to questions about legal contracts using state-of-the-art natural language processing techniques.
+This project aims to develop a high-precision legal expert system for contract Q&A using Retrieval-Augmented Generation (RAG). The system leverages advanced natural language processing (NLP) techniques to provide accurate and context-aware answers to questions about legal contracts and integrates a powerful language model with a custom retrieval mechanism to provide accurate and contextually relevant answers to contract-related queries.
 
 ## Table of Contents
 - [Overview](#overview)
@@ -24,7 +24,7 @@ This project implements a Retrieval-Augmented Generation (RAG) system for Contra
 
 ## Project Structure
 
-    contract-qa-rag-system/
+    Legal_Expert_Contract_Advisor_Using_Precision_RAG/
     ├── data/
     │   ├── raw/
     │   ├── processed/
