@@ -13,3 +13,5 @@ chromadb
 langchain
 unstructured
 docx2txt
+fastapi 
+uvicorn
