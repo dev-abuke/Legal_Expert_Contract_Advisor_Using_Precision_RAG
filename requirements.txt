@@ -4,3 +4,12 @@ transformers
 torch
 numpy
 scikit-learn
+openai
+langchain_community 
+tiktoken 
+langchain-openai 
+langchainhub 
+chromadb 
+langchain
+unstructured
+docx2txt
