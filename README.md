@@ -1,9 +1,11 @@
 # Contract Q&A RAG System
 
 ## Overview
+
 This project aims to develop a high-precision legal expert system for contract Q&A using Retrieval-Augmented Generation (RAG). The system leverages advanced natural language processing (NLP) techniques to provide accurate and context-aware answers to questions about legal contracts and integrates a powerful language model with a custom retrieval mechanism to provide accurate and contextually relevant answers to contract-related queries.
 
 ## Table of Contents
+
 - [Overview](#overview)
 - [Project Structure](#project-structure)
 - [Installation](#installation)
@@ -17,6 +19,7 @@ This project aims to develop a high-precision legal expert system for contract Q
 - [Contact](#contact)
 
 ## Features
+
 - Retrieval-Augmented Generation (RAG) pipeline for contract Q&A
 - Customizable retriever and generator components
 - Evaluation framework using RAGAS metrics
@@ -73,6 +76,7 @@ This project aims to develop a high-precision legal expert system for contract Q
 - `main.py`: Main entry point for running the RAG system
 
 ## Installation
+
 1. Clone the repository
 
 ```sh
@@ -80,6 +84,7 @@ git clone https://github.com/dev-abuke/Legal_Expert_Contract_Advisor_Using_Preci
 ```
 
 2. Navigate to project directory
+
 ```sh
 cd Legal_Expert_Contract_Advisor_Using_Precision_RAG
 ```
@@ -98,10 +103,12 @@ source venv/bin/activate  # On Windows, use venv\Scripts\activate
 
 3. Install the required dependencies:
 
-```sh 
+```sh
 pip install -r requirements.txt
 ```
+
 ## Usage
+
 1. Prepare your contract data and place it in the `data/raw/` directory.
 
 2. Preprocess the data
@@ -123,13 +130,16 @@ python src/evaluation/evaluate.py
 ```
 
 ## Development
+
 - Use the Jupyter notebooks in the `notebooks/` directory for exploration and prototyping.
 - Implement core functionality in the `src/` directory.
 - Add unit tests in the `tests/` directory.
 - Use `config.yaml` to manage project settings.
 
 ## Evaluation
+
 The system's performance is evaluated using the following metrics
+
 - Retrieval precision and recall
 - Answer relevance
 - Factual accuracy
@@ -138,7 +148,9 @@ The system's performance is evaluated using the following metrics
 Refer to the evaluation notebook for detailed results and analysis.
 
 ## Optimization Techniques
+
 This project explores various optimization techniques, including
+
 1. Advanced embedding models for retrieval
 2. Hybrid search methods
 3. Query expansion
@@ -146,7 +158,9 @@ This project explores various optimization techniques, including
 5. Prompt engineering
 
 ## Contributing
+
 Contributions to improve the system are welcome. Please follow these steps:
+
 1. Fork the repository
 2. Create a new branch (`git checkout -b feature/your-feature`)
 3. Make your changes and commit them (`git commit -am 'Add new feature'`)
@@ -154,11 +168,14 @@ Contributions to improve the system are welcome. Please follow these steps:
 5. Create a new Pull Request
 
 ## License
+
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Acknowledgments
+
 - 10 Academy for providing the challenge and learning opportunity
 - LizzyAI for the project inspiration and guidance
 
 ## Contact
+
 For any queries, please open an issue on this repository or contact [Abubeker Shamil](hello@abubekershamil.com).
