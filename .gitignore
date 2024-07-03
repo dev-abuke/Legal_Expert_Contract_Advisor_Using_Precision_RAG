@@ -1,1 +1,5 @@
 contract/
+cache/
+data/
+.env
+langchain/
