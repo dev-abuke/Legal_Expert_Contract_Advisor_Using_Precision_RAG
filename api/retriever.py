@@ -5,6 +5,7 @@ from langchain_chroma import Chroma
 from langchain_openai import OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.documents import Document
+from .factory import get_text_splitter
 
 import logging
 
@@ -29,8 +30,8 @@ class Retriever:
     def store_documents(self, documents: list[Document]):
         logger.info(f"Storing documents From function {len(documents)}")
 
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-        splits = text_splitter.split_documents(documents)
+        # text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+        splits = get_text_splitter().split_documents(documents)
 
         logger.info(f"Splits {len(splits)}")
 
