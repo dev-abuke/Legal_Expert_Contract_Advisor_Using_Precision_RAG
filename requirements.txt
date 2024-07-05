@@ -21,3 +21,6 @@ asyncpg
 databases
 pydantic
 pyyaml
+ragas==0.1.9
+langchain_experimental 
+langchain_openai
