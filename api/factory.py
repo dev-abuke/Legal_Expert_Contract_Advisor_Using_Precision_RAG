@@ -1,35 +1,42 @@
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_community.vectorstores import Chroma
-from .generator import create_context_prompt, create_rag_chain, get_qa_assistant_prompt, create_history_aware_prompt
+from .generator import create_context_prompt, get_qa_assistant_prompt, create_history_aware_prompt
+from .generator import get_answer_using_multi_query, get_answer_using_rag_fusion, get_answer_using_decomposition, get_answer_using_hyde
+from .chunking import TextSplitter
+from .config import load_config
 
 # make the .env file in the same directory
 import os
 from dotenv import load_dotenv
+
 load_dotenv()
 
-def get_model(config):
+def get_model():
+    config = load_config()
     if config["model"] == "gpt-3.5-turbo":
         return ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
-    elif config["model"] == "gpt-4":
-        return ChatOpenAI(model="gpt-4", temperature=0)
+    elif config["model"] == "gpt-4o":
+        return ChatOpenAI(model="gpt-4o", temperature=0)
     # Add more models as needed
 
-def get_embedding(config):
+def get_embedding():
+    config = load_config()
     if config["embedding"] == "openai":
         return OpenAIEmbeddings()
     elif config["embedding"] == "huggingface":
         return "HuggingFaceEmbeddings"
     # Add more embeddings as needed
 
-def get_retriever(config, documents):
-
+def get_retriever():
+    config = load_config()
     if config["retriever"] == "dense":
         return "DenseRetriever(documents)"
     elif config["retriever"] == "sparse":
         return "SparseRetriever(documents)"
     # Add more retrievers as needed
 
-def get_prompt(config):
+def get_prompt():
+    config = load_config()
     if config["prompt"] == "history_aware":
         return create_history_aware_prompt()
     elif config["prompt"] == "contextualize_q":
@@ -37,3 +44,27 @@ def get_prompt(config):
     elif config["prompt"] == "qa_assistant":
         return get_qa_assistant_prompt()
     # Add more prompts as needed
+
+def get_text_splitter(chunk_size=1000, chunk_overlap=200) -> TextSplitter:
+    config = load_config()
+    if config["text_splitter"] == "character":
+        return TextSplitter("Character", chunk_size, chunk_overlap)
+    elif config["text_splitter"] == "sentence":
+        return TextSplitter("Sentence", chunk_size, chunk_overlap)
+    elif config["text_splitter"] == "recursive":
+        return TextSplitter("Recursive", chunk_size, chunk_overlap)
+    elif config["text_splitter"] == "semantic":
+        return TextSplitter("Semantic", chunk_size, chunk_overlap)
+    # Add more text splitters as needed
+
+def get_query_translation():
+    config = load_config()
+    if config["query_translation"] == "multi_query":
+        return get_answer_using_multi_query
+    elif config["query_translation"] == "rag_fusion":
+        return get_answer_using_rag_fusion
+    elif config["query_translation"] == "decomposition":
+        return get_answer_using_decomposition
+    elif config["query_translation"] == "hyde":
+        return get_answer_using_hyde
+    # Add more query translation as needed
