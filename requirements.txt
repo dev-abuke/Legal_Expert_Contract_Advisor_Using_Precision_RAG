@@ -15,3 +15,9 @@ unstructured
 docx2txt
 fastapi 
 uvicorn
+psycopg2-binary
+sqlalchemy
+asyncpg
+databases
+pydantic
+pyyaml
