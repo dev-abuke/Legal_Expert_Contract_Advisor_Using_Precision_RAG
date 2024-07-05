@@ -3,3 +3,7 @@ cache/
 data/
 .env
 langchain/
+**/__pycache__/
+node_modules/
+**/chroma/
+db/
