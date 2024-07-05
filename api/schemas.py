@@ -7,15 +7,18 @@ class QueryRequest(BaseModel):
 
 class QueryResponse(BaseModel):
     response: str
+    context: str
 
 class MessageHistory(BaseModel):
     session_id: str
-    message: str
+    human_message: str
+    ai_message: str
 
 class MessageHistoryResponse(BaseModel):
     id: int
     session_id: str
-    message: str
+    human_message: str
+    ai_message: str
     timestamp: datetime
 
     class Config:
