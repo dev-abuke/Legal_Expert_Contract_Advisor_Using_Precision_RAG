@@ -16,5 +16,5 @@ router = APIRouter()
 async def qa_endpoint(session_id: str, query: QueryRequest, db: Session = Depends(get_db)):
     logger.info(f"The Query is :: {query.query}")
     response = await get_answer(session_id, query, db)
-    logger.info(f"The Response is :: {response}")
-    return QueryResponse(response=response)
+    print(f"The Response is ::: {response}")
+    return QueryResponse(response=response['answer'], context=response['context'])

@@ -3,7 +3,6 @@ from sqlalchemy.orm import Session
 from ..models import ChatHistory
 from ..schemas import QueryRequest
 from ..factory import get_model
-from ..config import load_config
 from ..retriever import get_retriever_instance
 from ..generator import create_history_aware_prompt, get_qa_assistant_prompt
 import logging
@@ -16,13 +15,11 @@ from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables.history import RunnableWithMessageHistory
 
-config = load_config()
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-llm = get_model(config)
-documents = []  # Load your documents here
+llm = get_model()
 retriever = get_retriever_instance()
 
 async def get_answer(session_id: str, query: QueryRequest, db: Session):
@@ -65,6 +62,11 @@ async def get_answer(session_id: str, query: QueryRequest, db: Session):
             "configurable": {"session_id": session_id}
         },  # constructs a key "abc123" in `store`.
     )["answer"]
+    # contexts = []
+    # contexts.append([docs.page_content for docs in best_match])
+    context = "\n\n".join(doc.page_content for doc in best_match)
+
+    print(f"Context is joined :: {context}")
 
     logger.info(f"Answer: {answer}")
     # Save the chat history to the database
@@ -72,7 +74,7 @@ async def get_answer(session_id: str, query: QueryRequest, db: Session):
     db.add(chat_history)
     db.commit()
 
-    return answer
+    return {"answer":answer, "context":context}
 
 def get_session_history(session_id: str) -> BaseChatMessageHistory:
     logger.info(f"Session ID in get_session_history: {session_id}")
