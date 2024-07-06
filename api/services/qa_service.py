@@ -2,9 +2,8 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from ..models import ChatHistory
 from ..schemas import QueryRequest
-from ..factory import get_model
+from ..factory import get_model, get_query_translation
 from ..retriever import get_retriever_instance
-from ..generator import create_history_aware_prompt, get_qa_assistant_prompt
 import logging
 
 import bs4
@@ -20,51 +19,13 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 llm = get_model()
+query_translation = get_query_translation()
 retriever = get_retriever_instance()
 
 async def get_answer(session_id: str, query: QueryRequest, db: Session):
 
-    # Retrieve the most similar document
-    best_match = retriever.retrieve(query.query)
-
-    logger.info(f"Best match: {len(best_match)} Metadata {best_match[0].metadata} Sample Content {best_match[0].page_content}")
-
-    if best_match is None:
-        raise HTTPException(status_code=404, detail="No relevant documents found")
-
-    ### Contextualize question ###
-    contextualize_q_prompt = create_history_aware_prompt()
-    
-    history_aware_retriever = create_history_aware_retriever(
-        llm, retriever.get_retriever(), contextualize_q_prompt
-    )
-
-    ### Answer question ###
-    qa_prompt = get_qa_assistant_prompt()
-
-    question_answer_chain = create_stuff_documents_chain(llm, qa_prompt)
-
-    rag_chain = create_retrieval_chain(history_aware_retriever, question_answer_chain)
-
-    ### Statefully manage chat history ###
-
-    conversational_rag_chain = RunnableWithMessageHistory(
-        rag_chain,
-        get_session_history,
-        input_messages_key="input",
-        history_messages_key="chat_history",
-        output_messages_key="answer",
-    )
-
-    answer = conversational_rag_chain.invoke(
-        {"input": query.query},
-        config={
-            "configurable": {"session_id": session_id}
-        },  # constructs a key "abc123" in `store`.
-    )["answer"]
-    # contexts = []
-    # contexts.append([docs.page_content for docs in best_match])
-    context = "\n\n".join(doc.page_content for doc in best_match)
+    # answer, context = get_answer_using_multi_query(query.query)
+    answer, context = query_translation(query)
 
     print(f"Context is joined :: {context}")
 
