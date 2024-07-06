@@ -36,5 +36,8 @@ def reciprocal_rank_fusion(results: list[list], k=60):
         for doc, score in sorted(fused_scores.items(), key=lambda x: x[1], reverse=True)
     ]
 
+    # return only the top 3 documents
+    return reranked_results[:5]
+
     # Return the reranked results as a list of tuples, each containing the document and its fused score
-    return reranked_results
+    # return reranked_results
