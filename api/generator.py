@@ -72,7 +72,18 @@ def multi_query_prompt():
 
     return prompt_perspectives
 
+def get_hyde_prompt():
+    # HyDE document genration prompt
+    template = """Please write a scientific paper passage to answer the question
+    Question: {question}
+    Passage:"""
+
+    prompt_hyde = ChatPromptTemplate.from_template(template)
+    
+    return prompt_hyde
+
 def get_answer_using_multi_query(question):
+    print("Using Multi Query")
 
     prompt_perspectives = multi_query_prompt()
 
@@ -106,6 +117,7 @@ def get_answer_using_multi_query(question):
     return answer, context
 
 def get_answer_using_rag_fusion(question):
+    print("Using RAG Fusion")
     prompt_perspectives = multi_query_prompt()
 
     generate_queries = (
@@ -119,9 +131,11 @@ def get_answer_using_rag_fusion(question):
     
     docs = retrieval_chain_rag_fusion.invoke({"question":question})
 
-    context = "\n\n".join(doc.page_content for doc in docs)
+    print("The Docs are :: ",docs)
 
-    logger.info(f"Context {context}")
+    context = "\n\n".join(doc.page_content for (doc, score) in docs)
+
+    logger.info(f"Context Length = {len(docs)}")
 
     prompt = create_context_prompt()
 
@@ -144,4 +158,29 @@ def get_answer_using_decomposition(question):
     return "This is using Decomposition", question
 
 def get_answer_using_hyde(question):
-    return "This is using HyDE", question
+    print("Using HyDe")
+
+    prompt_hyde = get_hyde_prompt()
+
+    generate_docs_for_retrieval = (
+        prompt_hyde | llm | StrOutputParser() 
+    )
+
+    # Retrieve
+    retrieval_chain = generate_docs_for_retrieval | retriever.get_retriever()
+
+    retireved_docs = retrieval_chain.invoke({"question":question})
+
+    context = "\n\n".join(doc.page_content for doc in retireved_docs)
+
+    prompt = create_context_prompt()
+
+    final_rag_chain = (
+        prompt
+        | llm
+        | StrOutputParser()
+    )
+
+    answer = final_rag_chain.invoke({"context":context,"question":question})
+
+    return answer, context
