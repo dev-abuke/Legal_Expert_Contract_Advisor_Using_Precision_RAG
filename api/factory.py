@@ -1,7 +1,5 @@
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_community.vectorstores import Chroma
-from .generator import create_context_prompt, get_qa_assistant_prompt, create_history_aware_prompt
-from .generator import get_answer_using_multi_query, get_answer_using_rag_fusion, get_answer_using_decomposition, get_answer_using_hyde
 from .chunking import TextSplitter
 from .config import load_config
 
@@ -36,6 +34,7 @@ def get_retriever():
     # Add more retrievers as needed
 
 def get_prompt():
+    from .generator import create_context_prompt, get_qa_assistant_prompt, create_history_aware_prompt
     config = load_config()
     if config["prompt"] == "history_aware":
         return create_history_aware_prompt()
@@ -45,8 +44,12 @@ def get_prompt():
         return get_qa_assistant_prompt()
     # Add more prompts as needed
 
-def get_text_splitter(chunk_size=1000, chunk_overlap=200) -> TextSplitter:
+def get_text_splitter() -> TextSplitter:
     config = load_config()
+
+    chunk_size = config["chunk_size"]
+    chunk_overlap = config["chunk_overlap"]
+    
     if config["text_splitter"] == "character":
         return TextSplitter("Character", chunk_size, chunk_overlap)
     elif config["text_splitter"] == "sentence":
@@ -59,6 +62,7 @@ def get_text_splitter(chunk_size=1000, chunk_overlap=200) -> TextSplitter:
 
 def get_query_translation():
     config = load_config()
+    from .generator import get_answer_using_multi_query, get_answer_using_rag_fusion, get_answer_using_decomposition, get_answer_using_hyde
     if config["query_translation"] == "multi_query":
         return get_answer_using_multi_query
     elif config["query_translation"] == "rag_fusion":
