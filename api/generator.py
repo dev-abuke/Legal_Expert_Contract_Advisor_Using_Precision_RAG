@@ -5,7 +5,12 @@ from operator import itemgetter
 
 from .retriever import get_retriever_instance
 from .factory import get_model
-from utils.helpers import get_unique_union
+from .utils.helpers import get_unique_union, reciprocal_rank_fusion
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+llm = get_model()
 
 retriever = get_retriever_instance()
 
@@ -67,18 +72,13 @@ def multi_query_prompt():
 
     return prompt_perspectives
 
-def create_llm(temperature=0):
-    # LLM
-    llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=temperature)
-
-    return llm
-
 def get_answer_using_multi_query(question):
+
     prompt_perspectives = multi_query_prompt()
 
     generate_queries = (
         prompt_perspectives 
-        | ChatOpenAI(temperature=0) 
+        | llm
         | StrOutputParser() 
         | (lambda x: x.split("\n"))
     )
@@ -89,9 +89,9 @@ def get_answer_using_multi_query(question):
 
     context = "\n\n".join(doc.page_content for doc in docs)
 
-    prompt = create_context_prompt()
+    logger.info(f"Context {context}")
 
-    llm = get_model()
+    prompt = create_context_prompt()
 
     final_rag_chain = (
         {"context": retrieval_chain, 
@@ -105,9 +105,40 @@ def get_answer_using_multi_query(question):
 
     return answer, context
 
-# TODO: Implement
 def get_answer_using_rag_fusion(question):
-    return "This is using RAG Fusion", question
+    prompt_perspectives = multi_query_prompt()
+
+    generate_queries = (
+        prompt_perspectives 
+        | llm
+        | StrOutputParser() 
+        | (lambda x: x.split("\n"))
+    )
+    
+    retrieval_chain_rag_fusion = generate_queries | retriever.get_retriever().map() | reciprocal_rank_fusion
+    
+    docs = retrieval_chain_rag_fusion.invoke({"question":question})
+
+    context = "\n\n".join(doc.page_content for doc in docs)
+
+    logger.info(f"Context {context}")
+
+    prompt = create_context_prompt()
+
+    final_rag_chain = (
+        {"context": retrieval_chain_rag_fusion, 
+        "question": itemgetter("question")} 
+        | prompt
+        | llm
+        | StrOutputParser()
+    )
+
+    answer = final_rag_chain.invoke({"question":question})
+
+    return answer, context
+
+
+# TODO: Implement
 
 def get_answer_using_decomposition(question):
     return "This is using Decomposition", question
