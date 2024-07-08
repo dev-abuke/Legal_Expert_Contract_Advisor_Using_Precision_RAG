@@ -1,8 +1,45 @@
-import React from 'react'
+import React, { useEffect, useState }from 'react'
 import Conversation from './Conversation';
 import Messages from './Messages';
 
 const Chat = () => {
+    
+    const [conversation, setConversation] = useState([]);
+    const [history, setHistory] = useState([]);
+    // get conversation on react using useEffect
+    useEffect(() => {
+        const getConversation = async () => {
+            const response = await fetch('http://127.0.0.1:8000/session_ids/');
+            const data = await response.json();
+            const history_response = await fetch('http://127.0.0.1:8000/history/');
+            const history_data = await history_response.json();
+            setHistory(history_data)
+            console.log("The History Data :: ",history_data)
+            console.log(data);
+            const conversations = []
+            for (let i = 0; i < data.length; i++) {
+                // get a history where the data matches the session_id
+                const filtered_history = history_data.filter((item) => item.session_id === data[i]);
+                console.log("The filtered history :: ",filtered_history)
+                //  get the last message from the history array
+                const last_message = filtered_history[filtered_history.length - 1];
+                console.log("The last message :: ",last_message)
+                //  get the small character ai_message of the last message array for display
+                const small_ai_message = last_message.ai_message.slice(0, 75) + "...";
+                // get the timestamp from the last message formated as x time ago or 12:00 AM
+                const time = new Date(last_message.timestamp).toLocaleString("en-US", { hour: "numeric", minute: "numeric", hour12: true });
+                // truncate the data[i] if it is above 10 characters
+                const name = data[i].length > 10 ? data[i].slice(0, 10) + "..." : data[i];
+                conversations.push({"name": name, "time": time, "message": small_ai_message})
+                // conversations.push({"name": data[i], "time": "12:00", "message": small_ai_message})
+            }
+            console.log("The conversation :: ",conversations)
+            setConversation(conversations);
+        }
+
+        getConversation()
+    }, [])
+
     return (
         <div className="">
             <div className="flex bg-white dark:bg-gray-900">
@@ -49,11 +86,11 @@ const Chat = () => {
                             </div>
                         </div>
                         <div className="text-lg font-semibol text-gray-600 dark:text-gray-200 p-3">Recent Conversations</div>
-                        <Conversation/>
+                        <Conversation conversation={conversation}/>
                     </div>
                 </div>               
                 <div className="flex-grow  h-screen p-2 rounded-md">
-                        <Messages/>
+                        <Messages history={history}/>
                 </div>
             </div>
         </div>
