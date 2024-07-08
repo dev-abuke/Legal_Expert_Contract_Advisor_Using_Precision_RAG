@@ -31,6 +31,12 @@ async def get_session_ids(db: Session = Depends(get_db)):
     logger.info(f"The Unique Session IDs :: {unique_session_ids}")
     return [session_id[0] for session_id in unique_session_ids]
 
+
+@router.get("/session_ids/{session_id}")
+async def get_session_id(session_id: str, db: Session = Depends(get_db)):
+    history = db.query(ChatHistory).filter(ChatHistory.session_id == session_id).all()
+    return history
+
 @router.delete("/history/{session_id}")
 async def delete_history(session_id: str, db: Session = Depends(get_db)):
     history = db.query(ChatHistory).filter(ChatHistory.session_id == session_id).delete()
