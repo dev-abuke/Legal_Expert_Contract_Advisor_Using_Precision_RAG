@@ -1,5 +1,8 @@
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_community.vectorstores import Chroma
+from langchain.retrievers import BM25Retriever, EnsembleRetriever
+from langchain.retrievers.weaviate_hybrid_search import WeaviateHybridSearchRetriever
+
 from .chunking import TextSplitter
 from .config import load_config
 
@@ -25,13 +28,33 @@ def get_embedding():
         return "HuggingFaceEmbeddings"
     # Add more embeddings as needed
 
-def get_retriever():
+def get_retriever(persist_directory = 'db'):
     config = load_config()
     if config["retriever"] == "dense":
-        return "DenseRetriever(documents)"
-    elif config["retriever"] == "sparse":
-        return "SparseRetriever(documents)"
-    # Add more retrievers as needed
+            vector_db = Chroma(persist_directory=persist_directory, embedding_function=OpenAIEmbeddings())
+            return vector_db
+    elif config["retriever"] == "hybrid":
+        import weaviate
+
+        auth_config = weaviate.auth.AuthApiKey(api_key=os.getenv("WEAVIATE_API_KEY"))
+
+        client = weaviate.Client(
+            url="https://sandbox-rag-hrim3oyf.weaviate.network",
+            additional_headers={
+                    "X-Openai-Api-Key": os.getenv("OPENAI_API_KEY"),
+            },
+            auth_client_secret=auth_config
+        )
+
+        retriever = WeaviateHybridSearchRetriever(
+            client=client,
+            index_name="LangChain",
+            text_key="text",
+            attributes=[],
+            create_schema_if_missing=True,
+        )
+        
+        return retriever
 
 def get_prompt():
     from .generator import create_context_prompt, get_qa_assistant_prompt, create_history_aware_prompt
@@ -62,7 +85,7 @@ def get_text_splitter() -> TextSplitter:
 
 def get_query_translation():
     config = load_config()
-    from .generator import get_answer_using_multi_query, get_answer_using_rag_fusion, get_answer_using_decomposition, get_answer_using_hyde
+    from .generator import get_answer_using_multi_query, get_answer_using_rag_fusion, get_answer_using_decomposition, get_answer_using_hyde, get_answer_using_raptor
     if config["query_translation"] == "multi_query":
         return get_answer_using_multi_query
     elif config["query_translation"] == "rag_fusion":
@@ -71,4 +94,6 @@ def get_query_translation():
         return get_answer_using_decomposition
     elif config["query_translation"] == "hyde":
         return get_answer_using_hyde
+    elif config["query_translation"] == "raptor":
+        return get_answer_using_raptor
     # Add more query translation as needed
