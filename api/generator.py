@@ -10,6 +10,7 @@ import logging
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
 llm = get_model()
 
 retriever = get_retriever_instance()
@@ -182,5 +183,27 @@ def get_answer_using_hyde(question):
     )
 
     answer = final_rag_chain.invoke({"context":context,"question":question})
+
+    return answer, context
+
+def get_answer_using_raptor(question, SAVE_PATH="raptor_tree/raptor_contract"):
+    import os, sys
+
+    print("The Question: ", question)
+
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '../raptor'))
+
+    print(f"Project ROOT IS : {project_root}")
+
+    print(f"sys.PATH IS : {sys.path}")
+
+    if project_root not in sys.path:
+        sys.path.append(project_root)
+
+    from raptor import RetrievalAugmentation
+
+    RA = RetrievalAugmentation(tree=SAVE_PATH)
+
+    answer, context = RA.answer_question(question)
 
     return answer, context
