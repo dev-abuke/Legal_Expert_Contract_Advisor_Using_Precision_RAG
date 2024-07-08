@@ -2,6 +2,7 @@ import os
 from langchain_community.document_loaders import Docx2txtLoader
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from .database import engine, SessionLocal
 from .models import Base
 from .routers import qa, history
@@ -21,6 +22,17 @@ app = FastAPI()
 # Include routers
 app.include_router(qa.router)
 app.include_router(history.router)
+
+# allow all origins
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 def get_document_from_docx(documents: list, file_path):
     # Load and parse HTML file found in the specified folder and subfolders
