@@ -16,15 +16,21 @@ class TextSplitter:
         if self.splitter_type == "Recursive":
             text_splitter = RecursiveCharacterTextSplitter(chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap)
         elif self.splitter_type == "Semantic":
-            text_splitter = SemanticChunker(OpenAIEmbeddings(), breakpoint_threshold_type="percentile")
+            text_splitter = SemanticChunker(OpenAIEmbeddings(), breakpoint_threshold_type="interquartile", number_of_chunks=100)
         elif self.splitter_type == "Character":
             text_splitter = CharacterTextSplitter(separator="\n\n", chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap)
         elif self.splitter_type == "Sentence":
             text_splitter = SentenceTransformersTokenTextSplitter(chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap)
         else:
             raise ValueError(f"Unsupported splitter type: {self.splitter_type}")
+        
+        chunks = text_splitter.split_documents(docs)
 
-        return text_splitter.split_documents(docs)
+        print(f"Splitter Type: {self.splitter_type}")
+
+        print(f"Number of chunks: {len(chunks)}")
+
+        return chunks
 
 def RecursiveSplitter(docs, chunk_size=1000, chunk_overlap=200):
     return TextSplitter("Recursive", chunk_size, chunk_overlap).split_documents(docs)
