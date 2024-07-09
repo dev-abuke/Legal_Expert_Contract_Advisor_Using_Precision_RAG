@@ -31,30 +31,9 @@ def get_embedding():
 def get_retriever(persist_directory = 'db'):
     config = load_config()
     if config["retriever"] == "dense":
-            vector_db = Chroma(persist_directory=persist_directory, embedding_function=OpenAIEmbeddings())
-            return vector_db
+        print("Using Chroma Retriever")
     elif config["retriever"] == "hybrid":
-        import weaviate
-
-        auth_config = weaviate.auth.AuthApiKey(api_key=os.getenv("WEAVIATE_API_KEY"))
-
-        client = weaviate.Client(
-            url="https://sandbox-rag-hrim3oyf.weaviate.network",
-            additional_headers={
-                    "X-Openai-Api-Key": os.getenv("OPENAI_API_KEY"),
-            },
-            auth_client_secret=auth_config
-        )
-
-        retriever = WeaviateHybridSearchRetriever(
-            client=client,
-            index_name="LangChain",
-            text_key="text",
-            attributes=[],
-            create_schema_if_missing=True,
-        )
-        
-        return retriever
+        print("Using Weaviate Hybrid Search Retriever")
 
 def get_prompt():
     from .generator import create_context_prompt, get_qa_assistant_prompt, create_history_aware_prompt
@@ -85,13 +64,15 @@ def get_text_splitter() -> TextSplitter:
 
 def get_query_translation():
     config = load_config()
-    from .generator import get_answer_using_multi_query, get_answer_using_rag_fusion, get_answer_using_decomposition, get_answer_using_hyde, get_answer_using_raptor
+    from .generator import get_answer_using_multi_query, get_answer_using_rag_fusion, get_answer_using_decomposition, get_answer_using_hyde, get_answer_using_raptor, get_answer_using_query
     if config["query_translation"] == "multi_query":
         return get_answer_using_multi_query
     elif config["query_translation"] == "rag_fusion":
         return get_answer_using_rag_fusion
     elif config["query_translation"] == "decomposition":
         return get_answer_using_decomposition
+    elif config["query_translation"] == "no_translation":
+        return get_answer_using_query
     elif config["query_translation"] == "hyde":
         return get_answer_using_hyde
     elif config["query_translation"] == "raptor":
