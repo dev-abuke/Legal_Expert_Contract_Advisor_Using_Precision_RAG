@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: my_rag_user
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: my_rag_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.10
+
+    - name: Install dependencies
+      run: |
+        python -m venv venv
+        . venv/bin/activate
+        pip install -r backend/requirements.txt
+
+    - name: Install Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+
+    - name: Install frontend dependencies
+      run: |
+        cd frontend
+        npm install
+
+    - name: Build frontend
+      run: |
+        cd frontend
+        npm run build
+
+    - name: Build backend Docker image
+      run: docker-compose -f docker-compose.yml build backend
+
+    - name: Start services
+      run: docker-compose -f docker-compose.yml up -d
+
+    - name: Wait for services to be healthy
+      run: |
+        docker-compose -f docker-compose.yml exec -T backend bash -c "until nc -z localhost 8000; do sleep 1; done"
+
+    - name: Run tests
+      run: |
+        docker-compose -f docker-compose.yml exec backend pytest
