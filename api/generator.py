@@ -1,6 +1,7 @@
 from langchain_core.output_parsers import StrOutputParser
 from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.runnables import RunnablePassthrough
 from operator import itemgetter
 
 from .retriever import get_retriever_instance
@@ -64,7 +65,7 @@ def get_qa_assistant_prompt():
 
 def multi_query_prompt():
     # Multi Query: Different Perspectives
-    template = """You are an AI language model assistant. Your task is to generate five 
+    template = """You are an AI language model assistant. Your task is to generate three (3) in a new line (do not jump lines)
     different versions of the given user question to retrieve relevant documents from a vector 
     database. By generating multiple perspectives on the user question, your goal is to help
     the user overcome some of the limitations of the distance-based similarity search. 
@@ -82,6 +83,33 @@ def get_hyde_prompt():
     prompt_hyde = ChatPromptTemplate.from_template(template)
     
     return prompt_hyde
+
+def format_docs(docs):
+        return "\n\n".join(doc.page_content for doc in docs)
+
+def get_answer_using_query(question):
+    print("Using No Query Transformations")
+
+    # Prompt
+    prompt = create_context_prompt()
+
+    retrieval_chain = retriever.get_retriever() | format_docs
+
+    # Retrieve the context first
+    context = retrieval_chain.invoke(question)
+
+    # Chain
+    rag_chain = (
+        {"context": retrieval_chain, "question": RunnablePassthrough()}
+        | prompt
+        | llm
+        | StrOutputParser()
+    )
+
+    # Question
+    answer = rag_chain.invoke(question)
+
+    return answer, context
 
 def get_answer_using_multi_query(question):
     print("Using Multi Query")
