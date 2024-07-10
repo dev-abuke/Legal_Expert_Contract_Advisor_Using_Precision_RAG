@@ -49,4 +49,4 @@ def get_document_from_docx(documents: list, file_path):
 documents = get_document_from_docx([], "data/raw/docx")
 len = len(documents)
 logger.info(f"The Logger INFO :: {len}")
-# retriever = get_retriever_instance(documents).store_documents(documents)
+retriever = get_retriever_instance(documents).store_documents(documents)
