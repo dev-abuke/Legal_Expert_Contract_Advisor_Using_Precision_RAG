@@ -9,9 +9,9 @@ const Chat = () => {
     // get conversation on react using useEffect
     useEffect(() => {
         const getConversation = async () => {
-            const response = await fetch('http://127.0.0.1:8000/session_ids/');
+            const response = await fetch('http://127.0.0.1:8001/session_ids/');
             const data = await response.json();
-            const history_response = await fetch('http://127.0.0.1:8000/history/');
+            const history_response = await fetch('http://127.0.0.1:8001/history/');
             const history_data = await history_response.json();
             setHistory(history_data)
             console.log("The History Data :: ",history_data)
