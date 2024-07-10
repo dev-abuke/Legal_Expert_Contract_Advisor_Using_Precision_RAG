@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 const Messages = ({ history }) => {
+    const [inputMessage, setInputMessage] = useState("");
     console.log("The history prop is in messages :: ", history);
 
     const filtered_history = history.filter((item) => item.session_id === "test_ragas");
@@ -9,6 +10,19 @@ const Messages = ({ history }) => {
     const top_messages = filtered_history.slice(0, 15);
 
     console.log("The top messages props is :: ", top_messages);
+
+    async function sendMessage(){
+        console.log("The input message is :: ", inputMessage);
+        const response = await fetch('http://127.0.0.1:8001/qa/from_frontend/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({query: inputMessage}),
+        });
+        const data = await response.json();
+        console.log("The data responded from the Input is :: ", data);
+    }
 
     const getAIMessage = (message, timestamp) => {
         return (
@@ -93,8 +107,8 @@ const Messages = ({ history }) => {
                         </svg>
                     </div>
                     <div className="search-chat flex flex-grow p-2">
-                        <input className="input text-gray-700 dark:text-gray-200 text-sm p-5 focus:outline-none bg-gray-100 dark:bg-gray-800 flex-grow rounded-l-md" type="text" placeholder="Type your message ..." />
-                        <div className="bg-gray-100 dark:bg-gray-800 dark:text-gray-200 flex justify-center items-center pr-3 text-gray-400 rounded-r-md">
+                        <input onChange={(e) => setInputMessage(e.target.value)} className="input text-gray-700 dark:text-gray-200 text-sm p-5 focus:outline-none bg-gray-100 dark:bg-gray-800 flex-grow rounded-l-md" type="text" placeholder="Type your message ..." />
+                        <div onClick={sendMessage} className="bg-gray-100 dark:bg-gray-800 dark:text-gray-200 flex justify-center items-center pr-3 text-gray-400 rounded-r-md">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                             </svg>
