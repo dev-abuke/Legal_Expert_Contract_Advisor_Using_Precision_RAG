@@ -29,6 +29,7 @@ class Retriever:
 
         elif config["retriever"] == "hybrid":
             print("We are Using Weaviate Hybrid Search Retriever")
+
             import weaviate
 
             auth_config = weaviate.auth.AuthApiKey(api_key=os.getenv("WEAVIATE_API_KEY"))
@@ -43,8 +44,8 @@ class Retriever:
 
             self.retriever = WeaviateHybridSearchRetriever(
                 client=client,
-                index_name="LangChain",
-                text_key="text",
+                index_name="LizzyAI",
+                text_key="hybrid_search_text",
                 attributes=[],
                 create_schema_if_missing=True,
             )
