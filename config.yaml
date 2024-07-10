@@ -1,8 +1,8 @@
 model: "gpt-3.5-turbo" # gpt-4o, gpt-3.5-turbo, gpt-4-turbo
 embedding: "openai"
-retriever: "hybrid" # dense, sparse, hybrid
+retriever: "dense" # dense, sparse, hybrid
 text_splitter: "semantic" # sentence, character, semantic, recursive
 prompt: "history_aware" # history_aware, contextualize_q, qa_assistant
-chunk_size: 500 # chunk_size
+chunk_size: 600 # chunk_size
 chunk_overlap: 50 # chunk_overlap
 query_translation: "no_translation" # multi_query, rag_fusion, decomposition, hyde, raptor, no_translation
