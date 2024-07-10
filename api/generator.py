@@ -214,10 +214,10 @@ def get_answer_using_hyde(question):
 
     return answer, context
 
-def get_answer_using_raptor(question, SAVE_PATH="raptor_tree/raptor_contract"):
+def get_answer_using_raptor(question, SAVE_PATH="raptor_tree/robinson_contract"):
     import os, sys
 
-    print("The Question: ", question)
+    print("The Question In Raptor : ", question)
 
     project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '../raptor'))
 
@@ -233,5 +233,9 @@ def get_answer_using_raptor(question, SAVE_PATH="raptor_tree/raptor_contract"):
     RA = RetrievalAugmentation(tree=SAVE_PATH)
 
     answer, context = RA.answer_question(question)
+
+    print("The Answer In Raptor : ", answer)
+
+    print("The Context In Raptor : ", context)
 
     return answer, context
